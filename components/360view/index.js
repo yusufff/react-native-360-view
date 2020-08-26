@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Dimensions, StyleSheet, Image } from 'react-native'
+import { Asset } from 'expo-asset';
 import { PanGestureHandler, State } from "react-native-gesture-handler";
 import Animated, {
   add,
@@ -19,7 +20,21 @@ import {
 
 const { width } = Dimensions.get('window');
 
+function cacheImages(images) {
+  return images.map(image => {
+    if (typeof image === 'string') {
+      return Image.prefetch(image);
+    } else {
+      return Asset.fromModule(image).downloadAsync();
+    }
+  });
+}
+
 const Image360View = ({ srcset, width, height, local }) => {
+  useEffect(() => {
+    cacheImages(srcset)
+  }, [srcset])
+
   const startX = useValue(0);
   const currentX = useValue(0);
   const startRotation = useValue(0);
